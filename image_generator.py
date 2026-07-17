@@ -52,6 +52,17 @@ def generate_image(hf_api_key: str, prompt: str, max_retries: int = 3) -> bytes:
             time.sleep(min(wait_time, 30))
             continue
 
+        # 404 usually means this specific model isn't served by the
+        # "hf-inference" provider under the new router -- not a typo/DNS issue.
+        if response.status_code == 404:
+            raise ImageGenerationError(
+                "Model not found on the hf-inference provider (HTTP 404). "
+                f"'{HF_API_URL}' may not host this model under the new router. "
+                "Check the model page on huggingface.co for which Inference "
+                "Providers list it, or try a different provider suffix "
+                "(e.g. 'black-forest-labs/FLUX.1-schnell:together')."
+            )
+
         # Any other error -- capture and stop
         try:
             last_error = response.json()
