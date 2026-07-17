@@ -69,6 +69,14 @@ st.markdown(
             --accent: #8B7FD1;
             --accent-soft: #ECE8FA;
             --border: #E3DEF5;
+
+            /* pastel accents used across section dots + result chips */
+            --pastel-lavender: #C9BFF0;
+            --pastel-blue:     #BBD6F2;
+            --pastel-mint:     #B9E6D3;
+            --pastel-peach:    #F7D3AE;
+            --pastel-pink:     #F3C4D6;
+            --pastel-yellow:   #F2E3A0;
         }
 
         html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
@@ -112,8 +120,8 @@ st.markdown(
             gap: 0.5rem;
         }
         .section-label .dot {
-            width: 8px; height: 8px; border-radius: 50%;
-            background: var(--accent);
+            width: 9px; height: 9px; border-radius: 50%;
+            background: var(--dot-color, var(--accent));
             display: inline-block;
         }
         .section-label:first-of-type { margin-top: 0; }
@@ -158,6 +166,11 @@ st.markdown(
         }
         div[role="radiogroup"] label:hover { border-color: var(--accent); background-color: var(--accent-soft); }
         div[role="radiogroup"] label div p { color: var(--ink) !important; }
+        div[role="radiogroup"] label[data-checked="true"],
+        div[role="radiogroup"] label:has(input:checked) {
+            background-color: var(--pastel-lavender) !important;
+            border-color: var(--pastel-lavender) !important;
+        }
 
         /* Buttons */
         .stButton>button {
@@ -192,13 +205,17 @@ st.markdown(
             gap: 0.6rem;
         }
         .result-meta .chip {
-            background-color: var(--accent-soft);
-            color: var(--accent);
+            color: var(--ink);
             font-size: 0.78rem;
             font-weight: 600;
             padding: 0.35rem 0.8rem;
             border-radius: 999px;
         }
+        .result-meta .chip:nth-child(5n+1) { background-color: var(--pastel-lavender); }
+        .result-meta .chip:nth-child(5n+2) { background-color: var(--pastel-blue); }
+        .result-meta .chip:nth-child(5n+3) { background-color: var(--pastel-mint); }
+        .result-meta .chip:nth-child(5n+4) { background-color: var(--pastel-peach); }
+        .result-meta .chip:nth-child(5n+5) { background-color: var(--pastel-pink); }
 
         .empty-state {
             color: var(--muted);
@@ -279,10 +296,10 @@ col_form, col_result = st.columns([1, 1.15], gap="large")
 
 with col_form:
     with st.container(key="spec_card"):
-        st.markdown('<div class="section-label"><span class="dot"></span>Room</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-label"><span class="dot" style="--dot-color: var(--pastel-lavender);"></span>Room</div>', unsafe_allow_html=True)
         room_type = st.radio("Room type", ROOM_TYPES, horizontal=True, label_visibility="collapsed")
 
-        st.markdown('<div class="section-label"><span class="dot"></span>Structure</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-label"><span class="dot" style="--dot-color: var(--pastel-blue);"></span>Structure</div>', unsafe_allow_html=True)
         structure_values = render_paired_selects([
             ("Door Material", DOOR_MATERIALS),
             ("Door Color", DOOR_COLORS),
@@ -298,7 +315,7 @@ with col_form:
         flooring = structure_values["Flooring"]
         color_theme = structure_values["Overall Color Theme"]
 
-        st.markdown('<div class="section-label"><span class="dot"></span>Furnishing</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-label"><span class="dot" style="--dot-color: var(--pastel-mint);"></span>Furnishing</div>', unsafe_allow_html=True)
         furnishing_values = render_paired_selects([
             ("Furniture Style", FURNITURE_STYLES),
             ("Lighting Style", LIGHTING_STYLES),
@@ -309,7 +326,7 @@ with col_form:
         specific_fields = ROOM_SPECIFIC_FIELDS.get(room_type, {})
         room_specific_values = {}
         if specific_fields:
-            st.markdown('<div class="section-label"><span class="dot"></span>Room Details</div>', unsafe_allow_html=True)
+            st.markdown('<div class="section-label"><span class="dot" style="--dot-color: var(--pastel-peach);"></span>Room Details</div>', unsafe_allow_html=True)
             room_specific_values = render_paired_selects(list(specific_fields.items()))
 
         st.write("")
@@ -318,7 +335,7 @@ with col_form:
 
 with col_result:
     with st.container(key="result_card"):
-        st.markdown('<div class="section-label"><span class="dot"></span>Result</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-label"><span class="dot" style="--dot-color: var(--pastel-pink);"></span>Result</div>', unsafe_allow_html=True)
 
         if generate_clicked:
             if not groq_key or not hf_key:
