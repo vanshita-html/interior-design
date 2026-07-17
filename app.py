@@ -62,18 +62,18 @@ st.markdown(
 
     <style>
         :root {
-            --bg: #F6F7F4;
+            --bg: #F3F0FB;
             --card: #FFFFFF;
-            --ink: #22262B;
-            --muted: #6B7280;
-            --accent: #3F6C51;
-            --accent-soft: #E8EFEA;
-            --border: #E6E4DD;
+            --ink: #14131A;
+            --muted: #5B5768;
+            --accent: #8B7FD1;
+            --accent-soft: #ECE8FA;
+            --border: #E3DEF5;
         }
 
         html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
         .stApp { background-color: var(--bg); }
-        .block-container { padding-top: 2.2rem; max-width: 1100px; }
+        .block-container { padding-top: 2.2rem; max-width: 1320px; }
 
         section[data-testid="stSidebar"] {
             background-color: #FFFFFF;
@@ -131,12 +131,13 @@ st.markdown(
         label { font-weight: 500 !important; color: var(--ink) !important; font-size: 0.9rem !important; }
 
         div[data-baseweb="select"] > div {
-            background-color: #FBFBF9 !important;
+            background-color: #FDFCFF !important;
             border: 1px solid var(--border) !important;
             border-radius: 10px !important;
             min-height: 3rem !important;
+            color: var(--ink) !important;
         }
-        div[data-baseweb="select"] span { white-space: normal !important; }
+        div[data-baseweb="select"] span { white-space: normal !important; color: var(--ink) !important; }
         div[data-baseweb="select"] > div:hover { border-color: var(--accent) !important; }
         div[data-baseweb="select"] > div:focus-within {
             border-color: var(--accent) !important;
@@ -156,6 +157,7 @@ st.markdown(
             transition: all 0.15s ease;
         }
         div[role="radiogroup"] label:hover { border-color: var(--accent); background-color: var(--accent-soft); }
+        div[role="radiogroup"] label div p { color: var(--ink) !important; }
 
         /* Buttons */
         .stButton>button {
@@ -233,6 +235,23 @@ def get_key(name: str) -> str:
     return ""
 
 
+def render_paired_selects(fields):
+    """
+    Render a list of (label, options) selectboxes two per row.
+    Used to keep the form compact -- the container is now wide enough
+    (1320px max-width) that pairing fields no longer clips long option text
+    the way the earlier 3-column layout did.
+    """
+    values = {}
+    for i in range(0, len(fields), 2):
+        pair = fields[i:i + 2]
+        cols = st.columns(len(pair))
+        for col, (label, options) in zip(cols, pair):
+            with col:
+                values[label] = st.selectbox(label, options)
+    return values
+
+
 with st.sidebar:
     st.markdown(
         '<div style="font-family:\'Manrope\',sans-serif;font-size:1.15rem;font-weight:700;'
@@ -264,23 +283,34 @@ with col_form:
         room_type = st.radio("Room type", ROOM_TYPES, horizontal=True, label_visibility="collapsed")
 
         st.markdown('<div class="section-label"><span class="dot"></span>Structure</div>', unsafe_allow_html=True)
-        door_material = st.selectbox("Door Material", DOOR_MATERIALS)
-        door_color = st.selectbox("Door Color", DOOR_COLORS)
-        wall_texture = st.selectbox("Wall Texture", WALL_TEXTURES)
-        wall_color = st.selectbox("Wall Color", WALL_COLORS)
-        flooring = st.selectbox("Flooring", FLOORING_TYPES)
-        color_theme = st.selectbox("Overall Color Theme", COLOR_THEMES)
+        structure_values = render_paired_selects([
+            ("Door Material", DOOR_MATERIALS),
+            ("Door Color", DOOR_COLORS),
+            ("Wall Texture", WALL_TEXTURES),
+            ("Wall Color", WALL_COLORS),
+            ("Flooring", FLOORING_TYPES),
+            ("Overall Color Theme", COLOR_THEMES),
+        ])
+        door_material = structure_values["Door Material"]
+        door_color = structure_values["Door Color"]
+        wall_texture = structure_values["Wall Texture"]
+        wall_color = structure_values["Wall Color"]
+        flooring = structure_values["Flooring"]
+        color_theme = structure_values["Overall Color Theme"]
 
         st.markdown('<div class="section-label"><span class="dot"></span>Furnishing</div>', unsafe_allow_html=True)
-        furniture_style = st.selectbox("Furniture Style", FURNITURE_STYLES)
-        lighting = st.selectbox("Lighting Style", LIGHTING_STYLES)
+        furnishing_values = render_paired_selects([
+            ("Furniture Style", FURNITURE_STYLES),
+            ("Lighting Style", LIGHTING_STYLES),
+        ])
+        furniture_style = furnishing_values["Furniture Style"]
+        lighting = furnishing_values["Lighting Style"]
 
-        room_specific_values = {}
         specific_fields = ROOM_SPECIFIC_FIELDS.get(room_type, {})
+        room_specific_values = {}
         if specific_fields:
             st.markdown('<div class="section-label"><span class="dot"></span>Room Details</div>', unsafe_allow_html=True)
-            for field_label, options in specific_fields.items():
-                room_specific_values[field_label] = st.selectbox(field_label, options)
+            room_specific_values = render_paired_selects(list(specific_fields.items()))
 
         st.write("")
         generate_clicked = st.button("✨ Generate Interior", use_container_width=True)
