@@ -11,7 +11,12 @@ material, color, or style without touching any logic.
 # ---------------------------------------------------------------------------
 GROQ_MODEL = "llama-3.3-70b-versatile"          # fast + strong reasoning, good for prompt writing
 HF_IMAGE_MODEL = "black-forest-labs/FLUX.1-schnell"  # fast, high quality, plays well with free tier
-HF_API_URL = f"https://api-inference.huggingface.co/models/{HF_IMAGE_MODEL}"
+
+# Hugging Face retired the old api-inference.huggingface.co endpoint (it now
+# returns 410 Gone / fails DNS resolution). Everything now goes through the
+# new Inference Providers router. The "hf-inference" segment selects HF's
+# own serverless backend as the provider.
+HF_API_URL = f"https://router.huggingface.co/hf-inference/models/{HF_IMAGE_MODEL}"
 
 # ---------------------------------------------------------------------------
 # Room types (matches the rooms in your FP1031 floor plan)
