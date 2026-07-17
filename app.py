@@ -37,214 +37,173 @@ load_dotenv()  # loads .env when running locally
 # ---------------------------------------------------------------------------
 st.set_page_config(
     page_title="AI Interior Studio",
-    page_icon="🏛️",
+    page_icon="🏠",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # ---------------------------------------------------------------------------
-# Design system -- "drafting sheet" aesthetic
-#   ink       #1C2B33  primary dark / text
-#   paper     #ECE6D8  aged blueprint-paper background
-#   card      #F7F3E9  lighter card surface
-#   brass     #B98B4E  accent (drafting compass)
-#   sage      #6E7F62  secondary accent
-#   hairline  #D9D0BC  rule / border color
-#   Fraunces  -> display serif headings
-#   Inter     -> body / UI text
-#   IBM Plex Mono -> spec labels, measurements
+# Design system -- clean, calm, single-column form (no cramped columns
+# that truncate long option text). One accent color, generous spacing.
+#   bg          #F6F7F4  page background, soft neutral
+#   card        #FFFFFF  card surface
+#   ink         #22262B  primary text
+#   muted       #6B7280  secondary text
+#   accent      #3F6C51  deep sage (buttons, focus states)
+#   accent-soft #E8EFEA  hover / highlight tint
+#   border      #E6E4DD  hairline borders
+#   Manrope     -> headings
+#   Inter       -> everything else
 # ---------------------------------------------------------------------------
 st.markdown(
     """
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --ink: #1C2B33;
-            --paper: #ECE6D8;
-            --card: #F7F3E9;
-            --brass: #B98B4E;
-            --sage: #6E7F62;
-            --hairline: #D9D0BC;
+            --bg: #F6F7F4;
+            --card: #FFFFFF;
+            --ink: #22262B;
+            --muted: #6B7280;
+            --accent: #3F6C51;
+            --accent-soft: #E8EFEA;
+            --border: #E6E4DD;
         }
 
-        html, body, [class*="css"]  { font-family: 'Inter', sans-serif; }
-
-        .stApp { background-color: var(--paper); }
+        html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+        .stApp { background-color: var(--bg); }
+        .block-container { padding-top: 2.2rem; max-width: 1100px; }
 
         section[data-testid="stSidebar"] {
-            background-color: var(--ink);
-            border-right: 1px solid var(--hairline);
+            background-color: #FFFFFF;
+            border-right: 1px solid var(--border);
         }
-        section[data-testid="stSidebar"] * { color: #EDE7D8 !important; }
         section[data-testid="stSidebar"] input {
-            background-color: #2A3A44 !important;
-            border: 1px solid #3E5261 !important;
-            color: #F7F3E9 !important;
-        }
-        section[data-testid="stSidebar"] .stCaption, section[data-testid="stSidebar"] small {
-            color: #9FB0AD !important;
+            border-radius: 10px !important;
+            border: 1px solid var(--border) !important;
         }
 
         /* ---------- Header ---------- */
-        .studio-eyebrow {
-            font-family: 'IBM Plex Mono', monospace;
-            letter-spacing: 0.18em;
-            font-size: 0.72rem;
-            font-weight: 600;
-            color: var(--brass);
-            text-transform: uppercase;
-            margin-bottom: 0.3rem;
-        }
         .studio-title {
-            font-family: 'Fraunces', serif;
-            font-size: 2.6rem;
-            font-weight: 600;
+            font-family: 'Manrope', sans-serif;
+            font-size: 2.15rem;
+            font-weight: 800;
             color: var(--ink);
-            line-height: 1.1;
-            margin: 0 0 0.4rem 0;
+            line-height: 1.15;
+            margin: 0 0 0.35rem 0;
         }
         .studio-subtitle {
-            font-family: 'Inter', sans-serif;
-            color: #5B5748;
-            font-size: 1.02rem;
-            max-width: 640px;
-            margin-bottom: 1.6rem;
+            color: var(--muted);
+            font-size: 1rem;
+            max-width: 620px;
+            margin-bottom: 1.8rem;
         }
 
-        /* ---------- Section numbering (drafting-sheet schedule style) ---------- */
-        .spec-heading {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.78rem;
-            font-weight: 600;
-            letter-spacing: 0.1em;
-            color: var(--sage);
-            text-transform: uppercase;
-            border-bottom: 1px solid var(--hairline);
-            padding-bottom: 0.4rem;
-            margin: 1.3rem 0 0.9rem 0;
+        /* ---------- Section labels ---------- */
+        .section-label {
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin: 1.4rem 0 0.9rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
+        .section-label .dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--accent);
+            display: inline-block;
+        }
+        .section-label:first-of-type { margin-top: 0; }
 
-        /* ---------- Drafting-corner cards via container key classes ---------- */
+        /* ---------- Cards ---------- */
         .st-key-spec_card, .st-key-result_card {
             background-color: var(--card);
-            border: 1px solid var(--hairline);
-            border-radius: 4px;
-            padding: 1.6rem 1.7rem 1.4rem 1.7rem;
-            position: relative;
-            box-shadow: 0 1px 3px rgba(28,43,51,0.06);
-        }
-        .st-key-spec_card::before, .st-key-spec_card::after,
-        .st-key-result_card::before, .st-key-result_card::after {
-            content: "";
-            position: absolute;
-            width: 14px;
-            height: 14px;
-            border-color: var(--brass);
-            border-style: solid;
-            opacity: 0.85;
-        }
-        .st-key-spec_card::before, .st-key-result_card::before {
-            top: -1px; left: -1px;
-            border-width: 2px 0 0 2px;
-        }
-        .st-key-spec_card::after, .st-key-result_card::after {
-            bottom: -1px; right: -1px;
-            border-width: 0 2px 2px 0;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.8rem 1.9rem;
+            box-shadow: 0 1px 2px rgba(20,20,20,0.03), 0 8px 24px rgba(20,20,20,0.04);
         }
 
-        /* ---------- Widgets ---------- */
-        label, .stSelectbox label, .stRadio label { 
-            font-family: 'Inter', sans-serif !important;
-            font-weight: 500 !important;
-            color: var(--ink) !important;
-            font-size: 0.88rem !important;
-        }
+        /* ---------- Form widgets: full width, roomy, no truncation ---------- */
+        label { font-weight: 500 !important; color: var(--ink) !important; font-size: 0.9rem !important; }
+
         div[data-baseweb="select"] > div {
-            background-color: #FFFFFF !important;
-            border: 1px solid var(--hairline) !important;
-            border-radius: 6px !important;
+            background-color: #FBFBF9 !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 10px !important;
+            min-height: 3rem !important;
         }
-        div[data-baseweb="select"] > div:hover { border-color: var(--brass) !important; }
+        div[data-baseweb="select"] span { white-space: normal !important; }
+        div[data-baseweb="select"] > div:hover { border-color: var(--accent) !important; }
+        div[data-baseweb="select"] > div:focus-within {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 3px var(--accent-soft) !important;
+        }
+        /* Dropdown option list -- match trigger width, don't clip text */
+        ul[data-testid="stSelectboxVirtualDropdown"] li { white-space: normal !important; }
 
-        /* Room-type segmented control (st.radio, horizontal) */
-        div[role="radiogroup"] {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
+        /* Room-type segmented control */
+        div[role="radiogroup"] { display: flex; gap: 0.5rem; flex-wrap: wrap; }
         div[role="radiogroup"] label {
-            background-color: #FFFFFF;
-            border: 1px solid var(--hairline);
+            background-color: #FBFBF9;
+            border: 1px solid var(--border);
             border-radius: 999px;
-            padding: 0.4rem 1rem !important;
+            padding: 0.5rem 1.1rem !important;
             margin: 0 !important;
-            cursor: pointer;
             transition: all 0.15s ease;
         }
-        div[role="radiogroup"] label:hover { border-color: var(--brass); }
+        div[role="radiogroup"] label:hover { border-color: var(--accent); background-color: var(--accent-soft); }
 
         /* Buttons */
         .stButton>button {
-            background-color: var(--ink);
-            color: #F7F3E9;
-            border-radius: 6px;
-            padding: 0.7rem 1.4rem;
+            background-color: var(--accent);
+            color: #FFFFFF;
+            border-radius: 10px;
+            padding: 0.75rem 1.4rem;
             font-weight: 600;
-            font-family: 'Inter', sans-serif;
-            border: 1px solid var(--ink);
+            border: none;
             width: 100%;
             transition: all 0.15s ease;
         }
-        .stButton>button:hover {
-            background-color: var(--brass);
-            border-color: var(--brass);
-            color: var(--ink);
-        }
+        .stButton>button:hover { background-color: #345940; }
+
         .stDownloadButton>button {
             background-color: transparent;
-            color: var(--ink);
-            border: 1.5px solid var(--ink);
-            border-radius: 6px;
+            color: var(--accent);
+            border: 1.5px solid var(--accent);
+            border-radius: 10px;
             font-weight: 600;
             width: 100%;
         }
-        .stDownloadButton>button:hover {
-            background-color: var(--ink);
-            color: #F7F3E9;
-        }
+        .stDownloadButton>button:hover { background-color: var(--accent-soft); }
 
-        /* Alerts */
-        div[data-testid="stAlertContentInfo"], div[data-testid="stAlertContentError"] {
-            font-family: 'Inter', sans-serif;
-        }
+        hr { border-color: var(--border); }
 
-        /* ---------- Title block (below generated image, drawing-sheet style) ---------- */
-        .title-block {
-            margin-top: 0.9rem;
-            border-top: 2px solid var(--ink);
-            padding-top: 0.6rem;
+        /* ---------- Result meta strip ---------- */
+        .result-meta {
+            margin-top: 1rem;
             display: flex;
-            justify-content: space-between;
             flex-wrap: wrap;
             gap: 0.6rem;
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.72rem;
-            color: var(--ink);
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
         }
-        .title-block div span.label { color: var(--sage); display: block; font-size: 0.65rem; margin-bottom: 0.15rem; }
-        .title-block div span.value { color: var(--ink); font-weight: 600; }
+        .result-meta .chip {
+            background-color: var(--accent-soft);
+            color: var(--accent);
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 0.35rem 0.8rem;
+            border-radius: 999px;
+        }
 
         .empty-state {
-            font-family: 'Inter', sans-serif;
-            color: #5B5748;
+            color: var(--muted);
             text-align: center;
-            padding: 3.5rem 1rem;
-            border: 1px dashed var(--hairline);
-            border-radius: 4px;
+            padding: 4rem 1rem;
+            border: 1.5px dashed var(--border);
+            border-radius: 12px;
         }
     </style>
     """,
@@ -255,8 +214,7 @@ st.markdown(
 # ---------------------------------------------------------------------------
 # Header
 # ---------------------------------------------------------------------------
-st.markdown('<div class="studio-eyebrow">AI Interior Studio &middot; FP1031</div>', unsafe_allow_html=True)
-st.markdown('<h1 class="studio-title">Design your room, down to the door handle.</h1>', unsafe_allow_html=True)
+st.markdown('<h1 class="studio-title">🏠 AI Interior Studio</h1>', unsafe_allow_html=True)
 st.markdown(
     '<p class="studio-subtitle">Choose your materials, colors and furnishing style below. '
     'Groq drafts the design brief, Hugging Face renders it as a photorealistic scene.</p>',
@@ -277,8 +235,8 @@ def get_key(name: str) -> str:
 
 with st.sidebar:
     st.markdown(
-        '<div style="font-family:\'Fraunces\',serif;font-size:1.3rem;font-weight:600;'
-        'color:#F7F3E9;margin-bottom:0.2rem;">🔑 Studio Credentials</div>',
+        '<div style="font-family:\'Manrope\',sans-serif;font-size:1.15rem;font-weight:700;'
+        'color:#22262B;margin-bottom:0.2rem;">🔑 API Keys</div>',
         unsafe_allow_html=True,
     )
     st.caption("Stored only for this session. Prefer a `.env` file or Streamlit secrets.")
@@ -295,38 +253,34 @@ with st.sidebar:
 
 
 # ---------------------------------------------------------------------------
-# Main layout
+# Main layout -- single-column form fields throughout, so long option
+# text never gets clipped, regardless of window width.
 # ---------------------------------------------------------------------------
-col_form, col_result = st.columns([1, 1.25], gap="large")
+col_form, col_result = st.columns([1, 1.15], gap="large")
 
 with col_form:
     with st.container(key="spec_card"):
-        st.markdown('<div class="spec-heading">01 &nbsp;&mdash;&nbsp; Room</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-label"><span class="dot"></span>Room</div>', unsafe_allow_html=True)
         room_type = st.radio("Room type", ROOM_TYPES, horizontal=True, label_visibility="collapsed")
 
-        st.markdown('<div class="spec-heading">02 &nbsp;&mdash;&nbsp; Structure</div>', unsafe_allow_html=True)
-        c1, c2 = st.columns(2)
-        with c1:
-            door_material = st.selectbox("Door Material", DOOR_MATERIALS)
-            wall_texture = st.selectbox("Wall Texture", WALL_TEXTURES)
-            flooring = st.selectbox("Flooring", FLOORING_TYPES)
-        with c2:
-            door_color = st.selectbox("Door Color", DOOR_COLORS)
-            wall_color = st.selectbox("Wall Color", WALL_COLORS)
-            color_theme = st.selectbox("Overall Color Theme", COLOR_THEMES)
+        st.markdown('<div class="section-label"><span class="dot"></span>Structure</div>', unsafe_allow_html=True)
+        door_material = st.selectbox("Door Material", DOOR_MATERIALS)
+        door_color = st.selectbox("Door Color", DOOR_COLORS)
+        wall_texture = st.selectbox("Wall Texture", WALL_TEXTURES)
+        wall_color = st.selectbox("Wall Color", WALL_COLORS)
+        flooring = st.selectbox("Flooring", FLOORING_TYPES)
+        color_theme = st.selectbox("Overall Color Theme", COLOR_THEMES)
 
-        st.markdown('<div class="spec-heading">03 &nbsp;&mdash;&nbsp; Furnishing</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-label"><span class="dot"></span>Furnishing</div>', unsafe_allow_html=True)
         furniture_style = st.selectbox("Furniture Style", FURNITURE_STYLES)
         lighting = st.selectbox("Lighting Style", LIGHTING_STYLES)
 
         room_specific_values = {}
         specific_fields = ROOM_SPECIFIC_FIELDS.get(room_type, {})
         if specific_fields:
-            st.markdown('<div class="spec-heading">04 &nbsp;&mdash;&nbsp; Room Details</div>', unsafe_allow_html=True)
-            cols = st.columns(len(specific_fields))
-            for col, (field_label, options) in zip(cols, specific_fields.items()):
-                with col:
-                    room_specific_values[field_label] = st.selectbox(field_label, options)
+            st.markdown('<div class="section-label"><span class="dot"></span>Room Details</div>', unsafe_allow_html=True)
+            for field_label, options in specific_fields.items():
+                room_specific_values[field_label] = st.selectbox(field_label, options)
 
         st.write("")
         generate_clicked = st.button("✨ Generate Interior", use_container_width=True)
@@ -334,7 +288,7 @@ with col_form:
 
 with col_result:
     with st.container(key="result_card"):
-        st.markdown('<div class="spec-heading">Result</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-label"><span class="dot"></span>Result</div>', unsafe_allow_html=True)
 
         if generate_clicked:
             if not groq_key or not hf_key:
@@ -366,11 +320,12 @@ with col_result:
 
                     st.markdown(
                         f"""
-                        <div class="title-block">
-                            <div><span class="label">Room</span><span class="value">{room_type}</span></div>
-                            <div><span class="label">Theme</span><span class="value">{color_theme}</span></div>
-                            <div><span class="label">Materials</span><span class="value">{door_material} / {flooring}</span></div>
-                            <div><span class="label">Rendered</span><span class="value">{datetime.date.today().isoformat()}</span></div>
+                        <div class="result-meta">
+                            <span class="chip">{room_type}</span>
+                            <span class="chip">{color_theme}</span>
+                            <span class="chip">{door_material} door</span>
+                            <span class="chip">{flooring}</span>
+                            <span class="chip">{datetime.date.today().isoformat()}</span>
                         </div>
                         """,
                         unsafe_allow_html=True,
